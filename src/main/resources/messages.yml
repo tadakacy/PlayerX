@@ -1,0 +1,3 @@
+messages:
+  prefix: "&8{&c!&8} "
+  started: "&aЗагружено и активировано модулей: %count%"

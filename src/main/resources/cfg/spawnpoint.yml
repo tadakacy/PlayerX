@@ -1,0 +1,12 @@
+spawn:
+  x: 100.5
+  y: 64.0
+  z: 200.5
+  world: world
+
+messages:
+  prefix: "&8{&c!&8} "
+  only-player: "&cЭту команду может использовать только игрок."
+  no-parameters: "&cСпавн не установлен."
+  no-world: "&cМир %world_name% не найден."
+  teleported: "&aВы были телепортированы на спавн..."

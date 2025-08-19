@@ -1,0 +1,6 @@
+name: AdminX
+version: '${project.version}'
+main: ru.tadakacy.adminx.AdminX
+api-version: '1.16'
+commands:
+  spawn:
