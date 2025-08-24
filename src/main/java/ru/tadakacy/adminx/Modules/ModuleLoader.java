@@ -2,7 +2,7 @@ package ru.tadakacy.adminx.Modules;
 
 import org.reflections.Reflections;
 import org.reflections.util.ConfigurationBuilder;
-import ru.tadakacy.adminx.AdminX;
+import ru.tadakacy.adminx.PlayerX;
 import ru.tadakacy.adminx.ModuleManager;
 
 import java.io.File;
@@ -14,7 +14,7 @@ import java.util.Set;
 
 public class ModuleLoader {
 
-    private static AdminX plugin;
+    private static PlayerX plugin;
     public static List<ru.tadakacy.adminx.ModuleManager> loadModulesFromDirectory(File directory, ClassLoader parentClassLoader) {
         List<ru.tadakacy.adminx.ModuleManager> modules = new ArrayList<>();
 
@@ -31,7 +31,6 @@ public class ModuleLoader {
                 URL jarUrl = jarFile.toURI().toURL();
                 URLClassLoader loader = new URLClassLoader(new URL[]{jarUrl}, parentClassLoader);
 
-                // Используем Reflections для поиска реализаций интерфейса Module внутри JAR
                 Reflections reflections = new Reflections(new ConfigurationBuilder()
                         .setUrls(jarUrl)
                         .addClassLoaders(loader));

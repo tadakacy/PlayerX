@@ -1,5 +1,5 @@
 package ru.tadakacy.adminx;
 
 public interface ModuleManager {
-    void onEnable(AdminX plugin);
+    void onEnable(PlayerX plugin);
 }

@@ -2,18 +2,18 @@ package ru.tadakacy.adminx.Utils;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import ru.tadakacy.adminx.AdminX;
+import ru.tadakacy.adminx.PlayerX;
 
 import java.io.File;
 
 import static ru.tadakacy.adminx.Utils.ColorText.color;
 
 public class Messages {
-    private final AdminX plugin;
+    private final PlayerX plugin;
     private File messagesFile;
     private FileConfiguration messagesConfig;
 
-    public Messages(AdminX plugin) {
+    public Messages(PlayerX plugin) {
         this.plugin = plugin;
         loadMessages();
     }
@@ -21,13 +21,6 @@ public class Messages {
     private void loadMessages() {
         messagesFile = new File(plugin.getDataFolder(), "messages.yml");
         if (!messagesFile.exists()) {
-            plugin.saveResource("messages.yml", false);
-        }
-        messagesConfig = YamlConfiguration.loadConfiguration(messagesFile);
-    }
-
-    public void reloadConfig() {
-        if(messagesFile == null) {
             plugin.saveResource("messages.yml", false);
         }
         messagesConfig = YamlConfiguration.loadConfiguration(messagesFile);
@@ -45,18 +38,5 @@ public class Messages {
         }
 
         return color(prefix + message);
-    }
-
-    public String getMessageNoPrefix(String key, String... placeholder) {
-        String message = messagesConfig.getString("messages." + key);
-        if (message == null) {
-            return color("&4Проверьте сообщения в конфигурации (messages.yml).");
-        }
-
-        for (int i = 0; i < placeholder.length; i += 2) {
-            message = message.replace("%" + placeholder[i] + "%", placeholder[i + 1]);
-        }
-
-        return color(message);
     }
 }
