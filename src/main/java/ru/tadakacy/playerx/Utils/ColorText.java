@@ -1,4 +1,4 @@
-package ru.tadakacy.adminx.Utils;
+package ru.tadakacy.playerx.Utils;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

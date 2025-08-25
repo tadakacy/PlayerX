@@ -1,27 +1,41 @@
-package ru.tadakacy.adminx;
+package ru.tadakacy.playerx;
 
 import org.bukkit.plugin.java.JavaPlugin;
-import ru.tadakacy.adminx.Utils.Messages;
+import ru.tadakacy.playerx.Commands.PlayerXCommand;
+import ru.tadakacy.playerx.Commands.PlayerXTabCompleter;
+import ru.tadakacy.playerx.Modules.ModuleLoader;
+import ru.tadakacy.playerx.Utils.Configuration;
+import ru.tadakacy.playerx.Utils.Messages;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static ru.tadakacy.adminx.Utils.ColorText.color;
+import static ru.tadakacy.playerx.Utils.ColorText.color;
 
 public final class PlayerX extends JavaPlugin {
+
     private List<ModuleManager> loadedModules = new ArrayList<>();
     private Messages msg;
+    private Configuration cfg;
+    private ModuleManager moduleManager;
+    private ModuleLoader moduleLoader;
+
     @Override
     public void onEnable() {
-        Messages msg = new Messages(this);
+        msg = new Messages(this);
+        cfg = new Configuration(this);
+        moduleLoader = new ModuleLoader(this);
+
+        getCommand("playerx").setExecutor(new PlayerXCommand(this));
+        getCommand("playerx").setTabCompleter(new PlayerXTabCompleter(this));
 
         File modulesDir = new File(getDataFolder(), "modules");
         if (!modulesDir.exists()) {
             modulesDir.mkdirs();
         }
 
-        loadedModules = ru.tadakacy.adminx.Modules.ModuleLoader.loadModulesFromDirectory(
+        loadedModules = ModuleLoader.loadModulesFromDirectory(
                 modulesDir, getClass().getClassLoader());
 
 
@@ -40,6 +54,18 @@ public final class PlayerX extends JavaPlugin {
         for (ModuleManager moduleManager : loadedModules) {
             moduleManager.onEnable(this);
         }
+    }
+
+    public ModuleManager getModuleManager() {
+        return moduleManager;
+    }
+
+    public List<ModuleManager> getLoadedModules() {
+        return loadedModules;
+    }
+
+    public ModuleLoader getModuleLoader() {
+        return moduleLoader;
     }
 
     public File getModulesFolder() {
@@ -67,9 +93,5 @@ public final class PlayerX extends JavaPlugin {
                 e.printStackTrace();
             }
         }
-    }
-
-    public Messages getCoreMsg() {
-        return msg;
     }
 }

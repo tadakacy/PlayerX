@@ -1,6 +1,9 @@
 name: PlayerX
 version: '${project.version}'
-main: ru.tadakacy.adminx.PlayerX
+main: ru.tadakacy.playerx.PlayerX
 api-version: '1.16'
 commands:
+  playerx:
+    aliases:
+      - px
   spawn:

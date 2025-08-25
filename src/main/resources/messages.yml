@@ -1,3 +1,19 @@
 messages:
   prefix: "&8{&c!&8} "
   started: "&aЗагружено и активировано модулей: %count%"
+  no-perm: "&fУ вас &cнедостаточно &fправ!"
+  help: "&fИспользуйте: &b/playerx help"
+  reload: "&aКонфигурация успешно перезагружена!"
+  reload-module: "&aМодуль %module% успешно перезагружен!"
+  please-specify-module: "&cПожалуйста, укажите нужный модуль."
+  module-already-loaded: "&fМодуль &n%module%&r&f уже загружен!"
+
+list:
+  info:
+    - ''
+    - '&8       {&cPlayerX&8}'
+    - '&b/playerx help &f— Выводит информацию о командах.'
+    - '&b/playerx reload &f— Перезагружает конфигурации плагина.'
+    - '&b/playerx module reload<название модуля> &f— Перезагружает определённый модуль.'
+    - '&b/playerx module load<название модуля> &f— Загружает определённый модуль.'
+    - ''
