@@ -54,6 +54,7 @@ public class PlayerXCommand implements CommandExecutor {
             case "reload":
                 if (args.length == 1) {
                     configuration.reloadConfiguration();
+                    messages.reloadMessages();
                     sender.sendMessage(messages.getMessage("reload"));
                 } else {
                     sender.sendMessage(messages.getMessage("help"));

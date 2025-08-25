@@ -7,6 +7,7 @@ messages:
   reload-module: "&aМодуль %module% успешно перезагружен!"
   please-specify-module: "&cПожалуйста, укажите нужный модуль."
   module-already-loaded: "&fМодуль &n%module%&r&f уже загружен!"
+  module-loaded: "&aМодуль %module% успешно загружен!"
 
 list:
   info:
