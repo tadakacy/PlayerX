@@ -6,6 +6,7 @@ import org.bukkit.command.TabCompleter;
 import ru.tadakacy.playerx.ModuleManager;
 import ru.tadakacy.playerx.PlayerX;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,14 +32,24 @@ public class PlayerXTabCompleter implements TabCompleter {
             completions.addAll(List.of("load", "reload"));
         } else if (args.length == 3 && args[0].equalsIgnoreCase("module")) {
             String action = args[1].toLowerCase();
-            if (action.equals("load") || action.equals("reload")) {
+            if (action.equalsIgnoreCase("reload")) {
                 playerX.getLoadedModules().stream()
                         .map(ModuleManager::getModuleName)
                         .filter(name -> name.toLowerCase().startsWith(args[2].toLowerCase()))
                         .forEach(completions::add);
+            } else if (action.equalsIgnoreCase("load")) {
+                File modulesFolder = new File(playerX.getDataFolder(), "modules");
+                for (File file : modulesFolder.listFiles()) {
+                    if (file.isFile() && file.getName().toLowerCase().endsWith(".jar")) {
+                        String filename = file.getName();
+                        String moduleName = filename.substring(0, filename.length() - 4);
+                        if (moduleName.toLowerCase().startsWith(args[2].toLowerCase())) {
+                            completions.add(moduleName);
+                        }
+                    }
+                }
             }
         }
-
         return completions;
     }
 

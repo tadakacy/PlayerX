@@ -1,5 +1,6 @@
 package ru.tadakacy.playerx.Modules;
 
+import org.bukkit.command.Command;
 import ru.tadakacy.playerx.ModuleManager;
 import ru.tadakacy.playerx.PlayerX;
 
@@ -13,6 +14,11 @@ public class CommandRegistry {
     public void registerModuleCommands(ModuleManager module) {
         if (!(module instanceof HasCommands)) return;
         for (ModuleCommand cmd : ((HasCommands) module).getCommands()) {
+
+            String commandName = cmd.getCommandName();
+            Command command = plugin.getCommand(commandName);
+
+            if(command == null) {plugin.getLogger().info("Команда не объявлена в plugin.yml");}
             plugin.getCommand(cmd.getCommandName()).setExecutor(cmd.getExecutor());
             plugin.getCommand(cmd.getCommandName()).setTabCompleter(cmd.getTabCompleter());
         }

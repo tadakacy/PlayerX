@@ -34,6 +34,7 @@ public class ModuleService {
         List<ModuleManager> modules = loadModules(modulesDir);
         for (ModuleManager module : modules) {
             enableModule(module);
+            plugin.getConfiguration().loadModuleConfiguration(module);
         }
         return modules;
     }
@@ -70,6 +71,7 @@ public class ModuleService {
             commandRegistry.registerModuleCommands(module);
         }
     }
+
     public void disableModule(ModuleManager module) {
         module.onDisable(plugin);
         if (module instanceof HasCommands) {

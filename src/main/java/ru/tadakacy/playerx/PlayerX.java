@@ -1,5 +1,6 @@
 package ru.tadakacy.playerx;
 
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.tadakacy.playerx.Modules.CommandRegistry;
 import ru.tadakacy.playerx.Commands.PlayerXCommand;
@@ -36,7 +37,6 @@ public final class PlayerX extends JavaPlugin {
 
         File modulesDir = getModulesFolder();
         moduleService.loadModulesFromDirectory(modulesDir);
-
         loadedModules = moduleService.getLoadedModules();
 
         registerMainCommands();
@@ -77,5 +77,13 @@ public final class PlayerX extends JavaPlugin {
             modulesFolder.mkdirs();
         }
         return modulesFolder;
+    }
+
+    public File getConfigFolder() {
+        File configFolder = new File(getModulesFolder(), "cfg");
+        if(!configFolder.exists()) {
+            configFolder.mkdirs();
+        }
+        return configFolder;
     }
 }

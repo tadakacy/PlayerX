@@ -16,6 +16,7 @@ import java.util.List;
 public class PlayerXCommand implements CommandExecutor {
     private final PlayerX playerX;
     private Messages messages;
+    private ModuleManager module;
 
     public PlayerXCommand(PlayerX playerX) {
         this.playerX = playerX;
@@ -94,6 +95,7 @@ public class PlayerXCommand implements CommandExecutor {
         ModuleManager module = ModuleService.loadModuleByName(moduleName, modulesDir, playerX.getClass().getClassLoader());
         if (module != null) {
             loadedModules.add(module);
+            playerX.getConfiguration().loadModuleConfiguration(module);
             sender.sendMessage(messages.getMessage("module-loaded", "module", moduleName));
             return true;
         } else {
@@ -103,13 +105,15 @@ public class PlayerXCommand implements CommandExecutor {
     }
 
     private boolean reloadModule(CommandSender sender, String moduleName) {
-        if (playerX.getModuleService().reloadModule(moduleName, playerX.getModulesFolder())) {
-            sender.sendMessage(messages.getMessage("reload-module", "module", moduleName));
-            return true;
-        } else {
-            new ErrorUtils(playerX).logError("1005", "module", moduleName);
-            return false;
+        if (module != null) {
+            if (playerX.getModuleService().reloadModule(moduleName, playerX.getModulesFolder())) {
+                sender.sendMessage(messages.getMessage("reload-module", "module", moduleName));
+                return true;
+            } else {
+                new ErrorUtils(playerX).logError("1005", "module", moduleName);
+            }
         }
+        return false;
     }
 
     public boolean isAdmin(CommandSender s) {

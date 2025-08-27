@@ -12,7 +12,6 @@ public interface ModuleManager {
     String getModuleName();
     String getVersion();
 
-    void saveConfig(Configuration config, File modulesDir);
-
+    void saveConfig(Configuration config);
     void registerCommands(CommandRegistry registry);
 }
