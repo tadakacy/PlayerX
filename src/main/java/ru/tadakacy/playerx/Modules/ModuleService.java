@@ -105,7 +105,7 @@ public class ModuleService {
         return false;
     }
 
-    private static ModuleManager loadModuleByName(String moduleName, File directory, ClassLoader parentClassLoader) {
+    public static ModuleManager loadModuleByName(String moduleName, File directory, ClassLoader parentClassLoader) {
         if (!directory.exists() || !directory.isDirectory()) {
             error.logError("1001");
             return null;

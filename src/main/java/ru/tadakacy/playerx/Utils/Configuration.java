@@ -33,25 +33,4 @@ public class Configuration {
         }
         cfgConfig = YamlConfiguration.loadConfiguration(configFile);
     }
-
-    public void saveModuleConfig(ModuleManager module, File modulesDir) {
-        File moduleConfigFile = new File(modulesDir, module.getModuleName() + ".yml");
-        if (!moduleConfigFile.exists()) {
-            try {
-                if (moduleConfigFile.createNewFile()) {
-                    // можно записать туда настройки по умолчанию
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        YamlConfiguration yaml = YamlConfiguration.loadConfiguration(moduleConfigFile);
-        yaml.set("moduleName", module.getModuleName());
-        yaml.set("version", module.getVersion());
-        try {
-            yaml.save(moduleConfigFile);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 }
