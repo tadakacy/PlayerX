@@ -8,13 +8,14 @@ messages:
   please-specify-module: "&cПожалуйста, укажите нужный модуль."
   module-already-loaded: "&fМодуль &n%module%&r&f уже загружен!"
   module-loaded: "&aМодуль %module% успешно загружен!"
+  error-module: "&cОшибка! Проверьте консоль разработчика."
 
 list:
   info:
     - ''
-    - '&8       {&cPlayerX&8}'
+    - '&8               {&cPlayerX&8}'
     - '&b/playerx help &f— Выводит информацию о командах.'
     - '&b/playerx reload &f— Перезагружает конфигурации плагина.'
-    - '&b/playerx module reload<название модуля> &f— Перезагружает определённый модуль.'
-    - '&b/playerx module load<название модуля> &f— Загружает определённый модуль.'
+    - '&b/playerx module reload <название модуля> &f— Перезагружает определённый модуль.'
+    - '&b/playerx module load <название модуля> &f— Загружает определённый модуль.'
     - ''

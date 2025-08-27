@@ -58,6 +58,11 @@ public final class PlayerX extends JavaPlugin {
         }
     }
 
+    @Override
+    public void onDisable() {
+        loadedModules.clear();
+    }
+
     private void registerMainCommands() {
         String cmd = "playerx";
         getCommand(cmd).setExecutor(new PlayerXCommand(this));

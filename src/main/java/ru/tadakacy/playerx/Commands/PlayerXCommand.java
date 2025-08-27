@@ -85,34 +85,46 @@ public class PlayerXCommand implements CommandExecutor {
 
     private boolean loadModule(CommandSender sender, String moduleName, File modulesDir) {
         List<ModuleManager> loadedModules = playerX.getLoadedModules();
-        boolean isLoaded = loadedModules.stream().anyMatch(m -> m.getModuleName().equalsIgnoreCase(moduleName));
+        boolean isLoaded = loadedModules.stream()
+                .anyMatch(m -> m.getModuleName().equalsIgnoreCase(moduleName));
 
         if (isLoaded) {
             sender.sendMessage(messages.getMessage("module-already-loaded", "module", moduleName));
             return true;
         }
 
-        ModuleManager module = ModuleService.loadModuleByName(moduleName, modulesDir, playerX.getClass().getClassLoader());
+        ModuleManager module = ModuleService.loadModuleByName(moduleName,
+                modulesDir,
+                playerX.getClass().getClassLoader(),
+                playerX
+        );
+
         if (module != null) {
-            loadedModules.add(module);
-            playerX.getConfiguration().loadModuleConfiguration(module);
-            sender.sendMessage(messages.getMessage("module-loaded", "module", moduleName));
+            boolean alreadyAdded = loadedModules.stream()
+                    .anyMatch(m -> m.getModuleName().equalsIgnoreCase(module.getModuleName()));
+            if (!alreadyAdded) {
+                loadedModules.add(module);
+                playerX.getConfiguration().loadModuleConfiguration(module);
+                sender.sendMessage(messages.getMessage("module-loaded", "module", moduleName));
+            } else {
+                sender.sendMessage(messages.getMessage("module-already-loaded", "module", moduleName));
+            }
             return true;
         } else {
             new ErrorUtils(playerX).logError("1004", "module", moduleName);
-            return false;
         }
+        return false;
     }
 
     private boolean reloadModule(CommandSender sender, String moduleName) {
-        if (module != null) {
-            if (playerX.getModuleService().reloadModule(moduleName, playerX.getModulesFolder())) {
-                sender.sendMessage(messages.getMessage("reload-module", "module", moduleName));
-                return true;
-            } else {
-                new ErrorUtils(playerX).logError("1005", "module", moduleName);
-            }
+        if (playerX.getModuleService().reloadModule(moduleName, playerX.getModulesFolder())) {
+            sender.sendMessage(messages.getMessage("reload-module", "module", moduleName));
+            return true;
+        } else {
+            sender.sendMessage(messages.getMessage("error-module"));
+            new ErrorUtils(playerX).logError("1005", "module", moduleName);
         }
+
         return false;
     }
 

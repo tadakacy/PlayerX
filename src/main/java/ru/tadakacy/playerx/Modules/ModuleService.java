@@ -9,10 +9,7 @@ import ru.tadakacy.playerx.Utils.ErrorUtils;
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 public class ModuleService {
     private final PlayerX plugin;
@@ -34,7 +31,6 @@ public class ModuleService {
         List<ModuleManager> modules = loadModules(modulesDir);
         for (ModuleManager module : modules) {
             enableModule(module);
-            plugin.getConfiguration().loadModuleConfiguration(module);
         }
         return modules;
     }
@@ -51,11 +47,15 @@ public class ModuleService {
             try {
                 URL jarUrl = jarFile.toURI().toURL();
                 URLClassLoader loader = new URLClassLoader(new URL[]{jarUrl}, plugin.getClass().getClassLoader());
-                Reflections reflections = new Reflections(new ConfigurationBuilder().setUrls(jarUrl).addClassLoaders(loader));
+                Reflections reflections = new Reflections(new ConfigurationBuilder()
+                        .setUrls(jarUrl)
+                        .addClassLoaders(loader));
                 Set<Class<? extends ModuleManager>> classes = reflections.getSubTypesOf(ModuleManager.class);
                 for (Class<? extends ModuleManager> clazz : classes) {
                     ModuleManager moduleInstance = clazz.getDeclaredConstructor().newInstance();
-                    modules.add(moduleInstance);
+                    if (!loadedModules.contains(moduleInstance)) {
+                        modules.add(moduleInstance);
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -65,10 +65,13 @@ public class ModuleService {
     }
 
     public void enableModule(ModuleManager module) {
-        loadedModules.add(module);
-        module.onEnable(plugin);
-        if (module instanceof HasCommands) {
-            commandRegistry.registerModuleCommands(module);
+        if (!loadedModules.contains(module)) {
+            module.onEnable(plugin);
+            plugin.getConfiguration().loadModuleConfiguration(module);
+            if (module instanceof HasCommands) {
+                commandRegistry.registerModuleCommands(module);
+            }
+            loadedModules.add(module);
         }
     }
 
@@ -82,43 +85,87 @@ public class ModuleService {
 
 
     public boolean reloadModule(String moduleName, File modulesDir) {
-        Optional<ModuleManager> optionalModule = loadedModules.stream()
-                .filter(m -> m.getModuleName().equalsIgnoreCase(moduleName))
-                .findFirst();
+        try {
+            plugin.getLogger().info("Перезагрузка модуля " + moduleName);
+            Optional<ModuleManager> optionalModule = loadedModules.stream()
+                    .filter(m -> m.getModuleName().equalsIgnoreCase(moduleName))
+                    .findFirst();
 
-        if (optionalModule.isEmpty()) {
-            return false;
-        }
+            if (optionalModule.isEmpty()) {
+                plugin.getLogger().info("Модуль не найден " + moduleName);
+                return false;
+            }
 
-        ModuleManager oldModule = optionalModule.get();
+            ModuleManager oldModule = optionalModule.get();
+            plugin.getLogger().info("Отключаю старый модуль " + moduleName);
+            disableModule(oldModule);
+            plugin.getLogger().info("Загружаю новый модуль " + moduleName);
+            ModuleManager newModule = ModuleService.loadModuleByName(
+                    moduleName,
+                    modulesDir,
+                    plugin.getClass().getClassLoader(),
+                    plugin
+            );
 
-        disableModule(oldModule);
-
-        ModuleManager newModule = ModuleService.loadModuleByName(
-                moduleName,
-                modulesDir,
-                plugin.getClass().getClassLoader()
-        );
-
-        if (newModule != null) {
-            enableModule(newModule);
-            return true;
+            if (newModule != null) {
+                plugin.getLogger().info("Активирую новый модуль " + newModule.getModuleName());
+                enableModule(newModule);
+                plugin.getLogger().info("Модуль успешно запущен " + newModule.getModuleName());
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         return false;
     }
 
-    public static ModuleManager loadModuleByName(String moduleName, File directory, ClassLoader parentClassLoader) {
+    public static ModuleManager loadModuleByName(String moduleName, File directory, ClassLoader parentClassLoader, PlayerX playerX) {
+
+        for(ModuleManager existModule : playerX.getModuleService().getLoadedModules()) {
+            if(existModule.getModuleName().equalsIgnoreCase(moduleName))
+                return existModule;
+        }
+
         if (!directory.exists() || !directory.isDirectory()) {
             error.logError("1001");
             return null;
         }
-        File[] files = directory.listFiles((dir, name) -> name.equalsIgnoreCase(moduleName + ".jar"));
-        if (files == null || files.length == 0) {
+
+        File[] exactMatchFiles = directory.listFiles((dir, name) -> name.equalsIgnoreCase(moduleName + ".jar"));
+
+        File selectedFile = null;
+
+        if (exactMatchFiles != null && exactMatchFiles.length > 0) {
+            selectedFile = exactMatchFiles[0];
+        } else {
+            File[] candidateFiles = directory.listFiles((dir, name) -> {
+                String lowerName = name.toLowerCase();
+                return lowerName.startsWith(moduleName.toLowerCase()) && lowerName.endsWith(".jar");
+            });
+
+            if (candidateFiles == null || candidateFiles.length == 0) {
+                return null;
+            }
+
+            List<File> candidates = new ArrayList<>();
+            Collections.addAll(candidates, candidateFiles);
+
+            candidates.sort((f1, f2) -> {
+                String v1 = extractVersion(f1.getName());
+                String v2 = extractVersion(f2.getName());
+                return compareVersions(v1, v2);
+            });
+
+            selectedFile = candidates.get(candidates.size() - 1);
+        }
+
+        if (selectedFile == null) {
             return null;
         }
-        File jarFile = files[0];
+
         try {
-            URL jarUrl = jarFile.toURI().toURL();
+            URL jarUrl = selectedFile.toURI().toURL();
             URLClassLoader loader = new URLClassLoader(new URL[]{jarUrl}, parentClassLoader);
             Reflections reflections = new Reflections(new ConfigurationBuilder()
                     .setUrls(jarUrl)
@@ -132,5 +179,24 @@ public class ModuleService {
             error.logError("1006", "module", moduleName);
         }
         return null;
+    }
+
+    private static String extractVersion(String filename) {
+        String name = filename.replace(".jar", "");
+        int dashIndex = name.indexOf('-');
+        if (dashIndex >= 0 && dashIndex < name.length() - 1) {
+            return name.substring(dashIndex + 1);
+        }
+        return ""; // без версии
+    }
+
+    private static int compareVersions(String v1, String v2) {
+        try {
+            double d1 = Double.parseDouble(v1);
+            double d2 = Double.parseDouble(v2);
+            return Double.compare(d1, d2);
+        } catch (NumberFormatException e) {
+            return v1.compareTo(v2);
+        }
     }
 }
