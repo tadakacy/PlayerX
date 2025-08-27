@@ -70,6 +70,12 @@ public class PlayerXCommand implements CommandExecutor {
                 String moduleNameInput = args[2];
 
                 File modulesDir = new File(playerX.getDataFolder(), "modules");
+                File configDir = new File(modulesDir, "cfg");
+
+                if (!configDir.exists()) {
+                    configDir.mkdirs();
+                }
+
                 List<ModuleManager> loadedModules = playerX.getLoadedModules();
                 ModuleManager module = null;
 

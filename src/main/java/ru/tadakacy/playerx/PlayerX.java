@@ -1,9 +1,11 @@
 package ru.tadakacy.playerx;
 
 import org.bukkit.plugin.java.JavaPlugin;
+import ru.tadakacy.playerx.Modules.CommandRegistry;
 import ru.tadakacy.playerx.Commands.PlayerXCommand;
 import ru.tadakacy.playerx.Commands.PlayerXTabCompleter;
 import ru.tadakacy.playerx.Modules.ModuleLoader;
+import ru.tadakacy.playerx.Modules.ModuleService;
 import ru.tadakacy.playerx.Utils.Configuration;
 import ru.tadakacy.playerx.Utils.Messages;
 
@@ -15,20 +17,29 @@ import static ru.tadakacy.playerx.Utils.ColorText.color;
 
 public final class PlayerX extends JavaPlugin {
 
+    ///  List загруженных модулей
     private List<ModuleManager> loadedModules = new ArrayList<>();
+
+    ///  всякие штучки дрючки :)
     private Messages msg;
     private Configuration cfg;
     private ModuleManager moduleManager;
     private ModuleLoader moduleLoader;
+    private ModuleService moduleService;
+    private CommandRegistry commandRegistry;
 
     @Override
     public void onEnable() {
+        /// важно!!!
         msg = new Messages(this);
         cfg = new Configuration(this);
         moduleLoader = new ModuleLoader(this);
+        commandRegistry = new CommandRegistry(this);
+        moduleService = new ModuleService(this, commandRegistry);
 
-        getCommand("playerx").setExecutor(new PlayerXCommand(this));
-        getCommand("playerx").setTabCompleter(new PlayerXTabCompleter(this));
+        moduleService.loadModulesFromDirectory(getModulesFolder());
+
+        registerMainCommnads();
 
         File modulesDir = new File(getDataFolder(), "modules");
         if (!modulesDir.exists()) {
@@ -37,7 +48,6 @@ public final class PlayerX extends JavaPlugin {
 
         loadedModules = ModuleLoader.loadModulesFromDirectory(
                 modulesDir, getClass().getClassLoader());
-
 
         getLogger().info(color("&a ______   __       ________   __  __   ______   ______    __     __     "));
         getLogger().info(color("&a/_____/\\ /_/\\     /_______/\\ /_/\\/_/\\ /_____/\\ /_____/\\  /__/\\ /__/\\    "));
@@ -56,16 +66,14 @@ public final class PlayerX extends JavaPlugin {
         }
     }
 
-    public ModuleManager getModuleManager() {
-        return moduleManager;
+    public void registerMainCommnads() {
+        String cmd = "playerx";
+        getCommand(cmd).setExecutor(new PlayerXCommand(this));
+        getCommand(cmd).setTabCompleter(new PlayerXTabCompleter(this));
     }
 
     public List<ModuleManager> getLoadedModules() {
         return loadedModules;
-    }
-
-    public ModuleLoader getModuleLoader() {
-        return moduleLoader;
     }
 
     public File getModulesFolder() {
@@ -74,24 +82,5 @@ public final class PlayerX extends JavaPlugin {
             modulesFolder.mkdirs();
         }
         return modulesFolder;
-    }
-
-    public void saveResourceToFile(String resourcePath, File outputFile) {
-        if (!outputFile.exists()) {
-            try (InputStream in = getResource(resourcePath)) {
-                if (in != null) {
-                    outputFile.getParentFile().mkdirs();
-                    try (OutputStream out = new FileOutputStream(outputFile)) {
-                        byte[] buffer = new byte[1024];
-                        int len;
-                        while ((len = in.read(buffer)) > 0) {
-                            out.write(buffer, 0, len);
-                        }
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 }

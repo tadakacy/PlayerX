@@ -1,9 +1,11 @@
 package ru.tadakacy.playerx.Utils;
 
 import org.bukkit.configuration.file.YamlConfiguration;
+import ru.tadakacy.playerx.ModuleManager;
 import ru.tadakacy.playerx.PlayerX;
 
 import java.io.File;
+import java.io.IOException;
 
 public class Configuration {
     private final PlayerX playerX;
@@ -30,5 +32,26 @@ public class Configuration {
             playerX.saveResource("config.yml", false);
         }
         cfgConfig = YamlConfiguration.loadConfiguration(configFile);
+    }
+
+    public void saveModuleConfig(ModuleManager module, File modulesDir) {
+        File moduleConfigFile = new File(modulesDir, module.getModuleName() + ".yml");
+        if (!moduleConfigFile.exists()) {
+            try {
+                if (moduleConfigFile.createNewFile()) {
+                    // можно записать туда настройки по умолчанию
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        YamlConfiguration yaml = YamlConfiguration.loadConfiguration(moduleConfigFile);
+        yaml.set("moduleName", module.getModuleName());
+        yaml.set("version", module.getVersion());
+        try {
+            yaml.save(moduleConfigFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
