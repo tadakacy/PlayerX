@@ -86,20 +86,16 @@ public class ModuleService {
 
     public boolean reloadModule(String moduleName, File modulesDir) {
         try {
-            plugin.getLogger().info("Перезагрузка модуля " + moduleName);
             Optional<ModuleManager> optionalModule = loadedModules.stream()
                     .filter(m -> m.getModuleName().equalsIgnoreCase(moduleName))
                     .findFirst();
 
             if (optionalModule.isEmpty()) {
-                plugin.getLogger().info("Модуль не найден " + moduleName);
                 return false;
             }
 
             ModuleManager oldModule = optionalModule.get();
-            plugin.getLogger().info("Отключаю старый модуль " + moduleName);
             disableModule(oldModule);
-            plugin.getLogger().info("Загружаю новый модуль " + moduleName);
             ModuleManager newModule = ModuleService.loadModuleByName(
                     moduleName,
                     modulesDir,
@@ -108,9 +104,7 @@ public class ModuleService {
             );
 
             if (newModule != null) {
-                plugin.getLogger().info("Активирую новый модуль " + newModule.getModuleName());
                 enableModule(newModule);
-                plugin.getLogger().info("Модуль успешно запущен " + newModule.getModuleName());
                 return true;
             }
         } catch (Exception e) {
@@ -187,7 +181,7 @@ public class ModuleService {
         if (dashIndex >= 0 && dashIndex < name.length() - 1) {
             return name.substring(dashIndex + 1);
         }
-        return ""; // без версии
+        return "";
     }
 
     private static int compareVersions(String v1, String v2) {
