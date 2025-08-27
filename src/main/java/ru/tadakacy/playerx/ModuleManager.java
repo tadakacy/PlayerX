@@ -1,12 +1,9 @@
 package ru.tadakacy.playerx;
 
 import ru.tadakacy.playerx.Modules.CommandRegistry;
-import ru.tadakacy.playerx.Modules.ModuleCommand;
 import ru.tadakacy.playerx.Utils.Configuration;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 public interface ModuleManager {
     void onEnable(PlayerX playerX);

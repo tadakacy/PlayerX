@@ -4,7 +4,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import ru.tadakacy.playerx.Modules.CommandRegistry;
 import ru.tadakacy.playerx.Commands.PlayerXCommand;
 import ru.tadakacy.playerx.Commands.PlayerXTabCompleter;
-import ru.tadakacy.playerx.Modules.ModuleLoader;
 import ru.tadakacy.playerx.Modules.ModuleService;
 import ru.tadakacy.playerx.Utils.Configuration;
 import ru.tadakacy.playerx.Utils.Messages;
@@ -24,7 +23,6 @@ public final class PlayerX extends JavaPlugin {
     private Messages msg;
     private Configuration cfg;
     private ModuleManager moduleManager;
-    private ModuleLoader moduleLoader;
     private ModuleService moduleService;
     private CommandRegistry commandRegistry;
 
@@ -33,21 +31,15 @@ public final class PlayerX extends JavaPlugin {
         /// важно!!!
         msg = new Messages(this);
         cfg = new Configuration(this);
-        moduleLoader = new ModuleLoader(this);
         commandRegistry = new CommandRegistry(this);
         moduleService = new ModuleService(this, commandRegistry);
 
-        moduleService.loadModulesFromDirectory(getModulesFolder());
+        File modulesDir = getModulesFolder();
+        moduleService.loadModulesFromDirectory(modulesDir);
 
-        registerMainCommnads();
+        loadedModules = moduleService.getLoadedModules();
 
-        File modulesDir = new File(getDataFolder(), "modules");
-        if (!modulesDir.exists()) {
-            modulesDir.mkdirs();
-        }
-
-        loadedModules = ModuleLoader.loadModulesFromDirectory(
-                modulesDir, getClass().getClassLoader());
+        registerMainCommands();
 
         getLogger().info(color("&a ______   __       ________   __  __   ______   ______    __     __     "));
         getLogger().info(color("&a/_____/\\ /_/\\     /_______/\\ /_/\\/_/\\ /_____/\\ /_____/\\  /__/\\ /__/\\    "));
@@ -66,11 +58,14 @@ public final class PlayerX extends JavaPlugin {
         }
     }
 
-    public void registerMainCommnads() {
+    private void registerMainCommands() {
         String cmd = "playerx";
         getCommand(cmd).setExecutor(new PlayerXCommand(this));
         getCommand(cmd).setTabCompleter(new PlayerXTabCompleter(this));
     }
+
+    public Configuration getConfiguration() {return cfg;}
+    public ModuleService getModuleService() {return moduleService;}
 
     public List<ModuleManager> getLoadedModules() {
         return loadedModules;
